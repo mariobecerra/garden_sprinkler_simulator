@@ -339,31 +339,3 @@ sprinkler = function(
   return(out_df)
 }
 
-
-create_random_design(n_runs = 10, seed = 2019, file_out_name = "random_design.tsv")
-sprinkler("random_design.tsv")
-
-sprinkler(random_matrix_n_runs = 10, random_matrix_seed = 2019)
-
-
-
-
-library(ggplot2)
-
-big_sim = sprinkler(random_matrix_n_runs = 1000, 
-                    random_matrix_seed = 2019)
-
-qplot(big_sim$consumption)
-qplot(big_sim$range)
-qplot(big_sim$speed)
-
-
-big_sim_2 = sprinkler(random_matrix_n_runs = 1000, 
-                      random_matrix_seed = 2019, 
-                      add_noise = T)
-
-qplot(big_sim_2$consumption)
-qplot(big_sim_2$range)
-qplot(big_sim_2$speed)
-
-
