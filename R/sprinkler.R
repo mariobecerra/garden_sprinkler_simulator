@@ -1,13 +1,6 @@
-# Der folgende Quellcode ist unter Octave und Matlab lauffähig. Erforderlich ist eine Eingabedatei
-# mit dem gewünschten Versuchsplan passend zu der gewählten Kodierung (zum Beispiel -1 bis 1).
-# Jede Zeile entspricht einer separaten Berechnung mit der entsprechenden Faktoreneinstellung.
-# Der gesamte Versuchsplan wird per Stapelverarbeitung mit einem Aufruf abgearbeitet.
+# Based on the code in Siebertz, K., et al. (2010). Statistische Versuchspanung (1st ed.). Berlin Heidelberg: Springer-Verlag. 
 
-# The following source code is executable under Octave and Matlab. Required is an input file with
-# the desired design matching the chosen encoding (for example -1 to 1). Each line corresponds to
-# a separate calculation with the corresponding factor setting. The entire experiment plan is
-# processed by batch with a call.
-
+library(checkmate)
 
 create_random_design = function(n_runs = 10, file_out_name = NULL, seed = NULL){
   
@@ -94,8 +87,8 @@ sprinkler = function(
   MaxFehler <- 0.005
   
   
-  dpzulVariante <- 1# 1Basis 2Variation
-  sflVariante <- 1# 1Basis 2Variation
+  dpzulVariante <- 1 # 1Basis 2Variation
+  sflVariante <- 1 # 1Basis 2Variation
   
   # Read design matrix file
   if(!is.null(design_matrix_file_name)){
@@ -108,6 +101,17 @@ sprinkler = function(
   }
   
   kzei = nrow(s)
+  
+  # Check that inputs are numeric are are within the specified ranges
+  for(i in 1:8){
+    checkmate::expect_numeric(
+      s[,i], 
+      any.missing = FALSE, 
+      lower = limits[i,2], 
+      upper = limits[i,3], 
+      label = paste0("Column ", i, " (", limits$variable[i], ")")
+    )
+  }
   
   
   out_df = as.data.frame(s)
