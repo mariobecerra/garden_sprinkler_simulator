@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(testthat)
 source("helpers.R")
 
 # Define server logic required to draw a histogram
@@ -52,12 +53,17 @@ shinyServer(function(input, output, session) {
          
         output$view = renderTable({out_sprinkler})
         
+        # workaround to download csv file
+        write.csv(sprinkler_res, "results_temp.csv", quote = F, row.names = F)
+        
     })
     
     output$download <- downloadHandler(
         filename = function(){"results.csv"}, 
         content = function(fname){
-            write.csv(out_sprinkler, fname, quote = F, row.names = F)
+            # write.csv(sprinkler_res, fname, quote = F, row.names = F)
+            file.copy("results_temp.csv", fname)
+            file.remove("results_temp.csv")
         }
     )
     
