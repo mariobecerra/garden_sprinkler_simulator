@@ -53,7 +53,8 @@ shinyServer(function(input, output, session) {
     observeEvent(input$simulate_button, {
         
         s = read.table(text = input$inText, header = F, stringsAsFactors = F)
-        sprinkler_res = sprinkler(design_matrix = s)
+        
+        sprinkler_res = sprinkler(design_matrix = s, add_noise = ("noise" %in% input$settings))
         
         out_sprinkler = sprinkler_res[, c("consumption", "range", "speed")]
         
