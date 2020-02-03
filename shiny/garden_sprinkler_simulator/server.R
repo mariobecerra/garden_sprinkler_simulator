@@ -56,13 +56,63 @@ shinyServer(function(input, output, session) {
         if("comma_sep" %in% input$settings) dec_sep = ","
         else dec_sep = "."
         
-        s = read.table(text = input$inText, header = F, stringsAsFactors = F, dec = dec_sep)
+        s = try(
+            read.table(text = input$inText, header = F, stringsAsFactors = F, dec = dec_sep),
+            silent = T
+        )
         
-        sprinkler_res = sprinkler(design_matrix = s, add_noise = ("noise" %in% input$settings))
+        if(class(s) == "try-error"){
+            out_sprinkler = data.frame(a = "There was an error in the input.")
+            names(out_sprinkler) = ""
+            sprinkler_res = out_sprinkler
+            
+            output$text_output <- renderText({ 
+                "There is an error in the input."
+            })
+        } else{
+            
+            if(ncol(s) != 8){
+                err_message = paste("There is an error in the input.", ncol(s), "columns detected. Should be 8.")
+                out_sprinkler = data.frame(
+                    a = err_message)
+                names(out_sprinkler) = ""
+                sprinkler_res = out_sprinkler
+                
+                output$text_output <- renderText({ 
+                    err_message
+                })
+            } else{
+                
+                output$text_output <- renderText({ 
+                    ""
+                })
+                
+                sprinkler_res = try(
+                    sprinkler(design_matrix = s, add_noise = ("noise" %in% input$settings)),
+                    silent = T
+                )
+                
+                if(class(sprinkler_res) == "try-error"){
+                    
+                    output$text_output <- renderText({ 
+                        sprinkler_res[1]
+                    })
+                    
+                    out_sprinkler = data.frame(a = sprinkler_res[1])
+                    names(out_sprinkler) = ""
+                    sprinkler_res = out_sprinkler
+                    
+                } else{
+                    out_sprinkler = sprinkler_res[, c("consumption", "range", "speed")]
+                }
+                
+                output$view = renderTable({out_sprinkler})
+            }
+        }
         
-        out_sprinkler = sprinkler_res[, c("consumption", "range", "speed")]
         
-        output$view = renderTable({out_sprinkler})
+        
+        
         
         # workaround to download tsv file
         write.table(sprinkler_res, "results_temp.tsv", quote = F, row.names = F)

@@ -58,7 +58,7 @@ tagList(
                     
                     downloadButton("download", 
                                    label = "Download result"),
-                    
+                    textOutput("text_output"),
                     tableOutput("view")
                     
                     
