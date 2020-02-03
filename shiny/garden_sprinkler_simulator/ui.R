@@ -49,13 +49,19 @@ tagList(
                     actionButton("generate_button", 
                                  label = "Generate another random design"),
                     h3(),
+                    checkboxGroupInput("settings", "Settings:",
+                                       c("Add noise" = "noise",
+                                         "Use comma as decimal separator" = "comma_sep")),
+                    h3(),
                     actionButton("simulate_button", 
                                  label = "Run simulation"),
                     
-                    tableOutput("view"),
-                    
                     downloadButton("download", 
-                                   label = "Download result")
+                                   label = "Download result"),
+                    
+                    tableOutput("view")
+                    
+                    
                     
                 ),
                 
