@@ -11,6 +11,12 @@ library(shiny)
 library(testthat)
 source("helpers.R")
 
+variables_tsv <- read.table(
+    "variables.tsv", 
+    header = T, 
+    stringsAsFactors = F,
+    colClasses = rep("character", 4))
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
     
@@ -37,7 +43,7 @@ shinyServer(function(input, output, session) {
         text_out = ""
         
         for(i in 1:nrow(s)){
-            text_out = paste0(text_out, paste(s[i,], collapse = ","), "\n")
+            text_out = paste0(text_out, paste(s[i,], collapse = "\t"), "\n")
         }
         
         
@@ -46,26 +52,38 @@ shinyServer(function(input, output, session) {
     
     observeEvent(input$simulate_button, {
         
-        s = read.csv(text = input$inText, header = F, stringsAsFactors = F)
+        s = read.table(text = input$inText, header = F, stringsAsFactors = F)
         sprinkler_res = sprinkler(design_matrix = s)
         
         out_sprinkler = sprinkler_res[, c("consumption", "range", "speed")]
-         
+        
         output$view = renderTable({out_sprinkler})
         
-        # workaround to download csv file
-        write.csv(sprinkler_res, "results_temp.csv", quote = F, row.names = F)
+        # workaround to download tsv file
+        write.table(sprinkler_res, "results_temp.tsv", quote = F, row.names = F)
         
     })
     
     output$download <- downloadHandler(
-        filename = function(){"results.csv"}, 
+        filename = function(){"results.tsv"}, 
         content = function(fname){
             # write.csv(sprinkler_res, fname, quote = F, row.names = F)
-            file.copy("results_temp.csv", fname)
-            file.remove("results_temp.csv")
+            file.copy("results_temp.tsv", fname)
+            file.remove("results_temp.tsv")
         }
     )
     
-
+    
+    output$sprinkler_schematics <- renderImage({
+        
+        return(list(
+            src = "sprinklerschematics.png",
+            contentType = "image/png",
+            alt = "Sprinkler"
+        ))
+    }, deleteFile = F)
+    
+    output$table_variables  <- renderTable(variables_tsv)
+    
+    
 })
