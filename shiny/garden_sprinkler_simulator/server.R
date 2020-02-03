@@ -52,7 +52,11 @@ shinyServer(function(input, output, session) {
     
     observeEvent(input$simulate_button, {
         
-        s = read.table(text = input$inText, header = F, stringsAsFactors = F)
+        
+        if("comma_sep" %in% input$settings) dec_sep = ","
+        else dec_sep = "."
+        
+        s = read.table(text = input$inText, header = F, stringsAsFactors = F, dec = dec_sep)
         
         sprinkler_res = sprinkler(design_matrix = s, add_noise = ("noise" %in% input$settings))
         
