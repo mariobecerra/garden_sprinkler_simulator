@@ -87,9 +87,9 @@ shinyServer(function(input, output, session) {
             
             if(ncol(s) != 8){
                 text_out_message = paste(
-                    "There is an error in the input.", 
+                    "There is an error in the input:", 
                     ncol(s), 
-                    "columns detected. Should be 8.")
+                    "column(s) detected. Should be 8.")
                 
                 out_sprinkler = data.frame(
                     a = text_out_message)

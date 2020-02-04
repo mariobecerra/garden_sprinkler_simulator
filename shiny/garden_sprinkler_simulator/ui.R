@@ -58,6 +58,7 @@ tagList(
                     
                     downloadButton("download", 
                                    label = "Download result"),
+                    h6(),
                     textOutput("text_output"),
                     tableOutput("view")
                     
