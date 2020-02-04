@@ -58,7 +58,7 @@ tagList(
                     
                     downloadButton("download", 
                                    label = "Download result"),
-                    textOutput("text_output"),
+                    verbatimTextOutput("text_output"),
                     tableOutput("view")
                     
                     
@@ -73,6 +73,10 @@ tagList(
                     
                     p("Here is a randomly generated design with 10 runs. The values are separated by tabs. The design you paste should also be separated by tabs."),
                     
+                    p("Variable order: "),
+                    
+                    
+                    p("1. alpha (vertical nozzle angle), 2. beta (tangential nozzle angle), 3. Aq (nozzle profile), 4. d (diameter of sprinkler head), 5. mt (dynamic friction moment), 6. mf (static friction moment), 7. pin (entrance pressure), 8. dzul (diameter flow line)"), 
                     
                     textAreaInput("inText", 
                                   label = NULL,
@@ -94,13 +98,12 @@ tagList(
         ####################################################
         tabPanel(
             "Help",
-            p("When using a garden sprinkler one of the quality parameters that defines a good sprinkler is a low consumption of water. We are interested in optimizing this response by following the response surface methodology. There are three responses that can be of interest: consumption (minimize), speed (maximize), range (maximize). When building sprinklers, there are 8 design parameters that we can adapt:"),
+            
+            h3("General information"),
+            
+            p("When using a garden sprinkler one of the quality parameters that defines a good sprinkler is a low consumption of water. We are interested in optimizing this response by following the response surface methodology. There are three responses that can be of interest: consumption (minimize), speed (maximize), range (maximize). When building sprinklers, there are 8 design parameters that we can adapt: vertical nozzle angle (alpha), tangential nozzle angle (beta), nozzle profile (Aq), diameter of sprinkler head (d), dynamic friction moment (mt), static friction moment (mf), entrance pressure (pin), and diameter flow line (dzul). These parameters are shown in the following diagram:"),
             
             imageOutput("sprinkler_schematics", height = 350),
-            
-            p("The extreme limits for the settings can be found in the design configuration table. This means that you cannot go outside of these bounds in the simulator! The real sprinklers are limited to these values by constraints given by the production engineers. If you leave a value out of your design, the simulator offers you three choices to fix this variable at. Always input your design in real units, not coded units!!!"),
-            
-            p("The columns of your dataframe should be ordered in the same way as the factors are shown in simulator settings in the figure above. If you leave factors out, you just keep the order as given in the design simulator heading (or the table in this text) with these excluded.. A few examples of how the columns should be ordered can be found below."),
             
             h3("Design configuration table"),
             
@@ -108,7 +111,12 @@ tagList(
             
             tableOutput("table_variables"),
             
-            h3('Build-up of a .txt data file'),
+            p("The meaning of the values in the table is that you cannot go outside of these bounds in the simulator. The sprinklers are limited to these values by constraints given by the production engineers. If you leave a value out of your design, the simulator will tell you what variable is out of bounds."),
+            
+            p("The columns of the design you paste should be ordered in the same way as the factors are shown in simulator settings in the figure above."),
+            
+            h3('Build-up of a .tsv data file'),
+            
             p('When using a txt file the simulator expects the following things:'),
             tags$ol(
                 tags$li('Column separator is a tab ("\\t")'),
@@ -116,8 +124,13 @@ tagList(
                 tags$li('The columns should not be quoted'),
                 tags$li('No column or row headers should be included')),
             p('To write a design to a tsv (tab-separated values) file in R, use the following code:'),
-            pre('write.table(design, "folder_name/design.txt", sep = "\\t", quote = FALSE, dec = ".", row.names = FALSE)'),
-            p('where', tags$em("design"), 'is the name of the dataframe with the design,', tags$em('folder_name/design.txt'), 'should be replaced with the path where the file is going to be saved.'),
+            pre('write.table(design, "folder_name/design.tsv", sep = "\\t", quote = FALSE, dec = ".", row.names = FALSE)'),
+            p('where', tags$em("design"), 'is the name of the dataframe with the design,', tags$em('folder_name/design.tsv'), 'should be replaced with the path where the file is going to be saved.'),
+            
+            h3('Noise addition'),
+            
+            p("The simulator has the option to add noise to the response variables. This just means that the response variable may change from run to run, even if all the input values are the same."),
+            
             br(),
             br(),
             br(),

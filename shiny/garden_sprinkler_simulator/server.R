@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(stringr)
 library(testthat)
 source("helpers.R")
 
@@ -52,6 +53,7 @@ shinyServer(function(input, output, session) {
     
     observeEvent(input$simulate_button, {
         
+        text_out_message = ""
         
         if("comma_sep" %in% input$settings) dec_sep = ","
         else dec_sep = "."
@@ -62,29 +64,48 @@ shinyServer(function(input, output, session) {
         )
         
         if(class(s) == "try-error"){
-            out_sprinkler = data.frame(a = "There was an error in the input.")
+            
+            
+            # If this error message is found, it is because input space is empty
+            string_find = "no lines available in input"
+            if(grepl(string_find, as.character(s[1]))){
+                text_out_message = "Empty input space."
+            }
+            
+            
+            out_sprinkler = data.frame(a = text_out_message)
             names(out_sprinkler) = ""
             sprinkler_res = out_sprinkler
             
             output$text_output <- renderText({ 
-                "There is an error in the input."
+                text_out_message
             })
+            
+            # text_out_message = ""
+            
         } else{
             
             if(ncol(s) != 8){
-                err_message = paste("There is an error in the input.", ncol(s), "columns detected. Should be 8.")
+                text_out_message = paste(
+                    "There is an error in the input.", 
+                    ncol(s), 
+                    "columns detected. Should be 8.")
+                
                 out_sprinkler = data.frame(
-                    a = err_message)
+                    a = text_out_message)
                 names(out_sprinkler) = ""
                 sprinkler_res = out_sprinkler
                 
                 output$text_output <- renderText({ 
-                    err_message
+                    text_out_message
                 })
+                
+                # text_out_message = ""
+                
             } else{
                 
                 output$text_output <- renderText({ 
-                    ""
+                    text_out_message
                 })
                 
                 sprinkler_res = try(
@@ -94,16 +115,47 @@ shinyServer(function(input, output, session) {
                 
                 if(class(sprinkler_res) == "try-error"){
                     
+                    # text_out_message = as.character(sprinkler_res[1])
+                    
+                    # If this error message is found, trim it
+                    string_find = "The following errors in the input were found:"
+                    if(grepl(string_find, as.character(sprinkler_res[1]))){
+                        
+                        text_out_message = stringr::str_replace_all(
+                            sprinkler_res[1], "\n", "")
+                        text_out_message = stringr::str_replace_all(
+                            text_out_message, "isn't true.", "")
+                        text_out_message = stringr::str_replace_all(
+                            text_out_message, "( )*(,)+( )+", ", ")
+                        text_out_message = stringr::str_replace_all(
+                            text_out_message, "Error : ", "")
+                        
+                        
+                        
+                        text_out_message = stringr::str_extract(
+                            text_out_message, 
+                            paste0(string_find, ".*"))
+                        
+                        text_out_message = stringr::str_replace_all(
+                            text_out_message, string_find, "")
+                        
+                        
+                    }
+                    
                     output$text_output <- renderText({ 
-                        sprinkler_res[1]
+                        text_out_message
                     })
                     
-                    out_sprinkler = data.frame(a = sprinkler_res[1])
+                    
+                    out_sprinkler = data.frame(a = text_out_message)
                     names(out_sprinkler) = ""
                     sprinkler_res = out_sprinkler
                     
+                    text_out_message = ""
+                    
                 } else{
                     out_sprinkler = sprinkler_res[, c("consumption", "range", "speed")]
+                    text_out_message = ""
                 }
                 
                 output$view = renderTable({out_sprinkler})
