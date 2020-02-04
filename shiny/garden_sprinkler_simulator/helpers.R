@@ -113,15 +113,29 @@ sprinkler = function(
   
   kzei = nrow(s)
   
+  error_messages = list()
+  
   # Check that inputs are numeric are are within the specified ranges
   for(i in 1:8){
-    checkmate::expect_numeric(
-      s[,i], 
-      any.missing = FALSE, 
-      lower = limits[i,2], 
-      upper = limits[i,3], 
-      label = paste0("Column ", i, " (", limits$variable[i], ")")
+    check_input_res = try(
+      checkmate::expect_numeric(
+        s[,i], 
+        any.missing = FALSE, 
+        lower = limits[i,2], 
+        upper = limits[i,3], 
+        label = paste0("column ", i, " (", limits$variable[i], ").")
+      ),
+      silent = T
     )
+    if(class(check_input_res) == "try-error") {
+      # error_messages = append(error_messages, paste0("   ", i, ". ", check_input_res[1]))
+      error_messages = append(error_messages, check_input_res[1])
+    }
+  }
+  
+  # If there were errors in the input, stop and print the errors
+  if(length(error_messages) > 0){
+    stop("The following errors in the input were found: ", paste(error_messages, collapse = " | "))
   }
   
   
