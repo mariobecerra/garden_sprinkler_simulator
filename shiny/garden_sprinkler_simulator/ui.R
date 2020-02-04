@@ -58,7 +58,7 @@ tagList(
                     
                     downloadButton("download", 
                                    label = "Download result"),
-                    verbatimTextOutput("text_output"),
+                    textOutput("text_output"),
                     tableOutput("view")
                     
                     
